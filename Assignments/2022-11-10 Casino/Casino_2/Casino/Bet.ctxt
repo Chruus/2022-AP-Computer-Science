@@ -1,0 +1,15 @@
+#BlueJ class context
+comment0.target=Bet
+comment1.params=args
+comment1.target=void\ main(java.lang.String[])
+comment2.params=d
+comment2.target=void\ print(Die[])
+comment3.params=d
+comment3.target=int\ sum(Die[])
+comment4.params=d
+comment4.target=void\ rollDice(Die[])
+comment5.params=d
+comment5.target=int\ bigVal(Die[])
+comment6.params=d
+comment6.target=int\ findLargest(Die[])
+numComments=7

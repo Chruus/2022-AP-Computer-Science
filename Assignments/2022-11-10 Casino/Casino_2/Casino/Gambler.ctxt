@@ -1,0 +1,27 @@
+#BlueJ class context
+comment0.target=Gambler
+comment1.params=n
+comment1.target=Gambler(java.lang.String)
+comment10.params=m
+comment10.target=void\ addMoney(double)
+comment11.params=m
+comment11.target=void\ subtractMoney(double)
+comment12.params=
+comment12.target=java.lang.String\ toString()
+comment2.params=n\ m
+comment2.target=Gambler(java.lang.String,\ double)
+comment3.params=
+comment3.target=Die\ d1()
+comment4.params=
+comment4.target=Die\ d2()
+comment5.params=
+comment5.target=java.lang.String\ getName()
+comment6.params=
+comment6.target=double\ getMoney()
+comment7.params=
+comment7.target=int\ getTotal()
+comment8.params=
+comment8.target=void\ rollDice()
+comment9.params=n
+comment9.target=void\ setName(java.lang.String)
+numComments=13
