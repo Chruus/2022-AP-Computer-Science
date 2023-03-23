@@ -2,9 +2,9 @@ public class Block{
     private int row, col, scale;
     private color clr;
     
-    public Block(int row_, int col_, int scale_, color clr_){
-        row = row_;
-        col = col_;
+    public Block(float row_, float col_, int scale_, color clr_){
+        row = (int) row_;
+        col = (int) col_;
         clr = clr_;
         scale = scale_;
     }
@@ -18,7 +18,22 @@ public class Block{
         rectMode(CENTER);
         strokeWeight(0);
         fill(clr);
-        rect(x, y, scale * 0.9, scale * 0.9);
+        rect(x, y, scale * 0.9, scale * 0.9, 4, 4, 4, 4);
+
+        popMatrix();
+        popStyle();
+    }
+
+    public void display(int opacity){
+        pushStyle();
+        pushMatrix();
+
+        int x = (col + 1) * scale - scale / 2;
+        int y = (row + 1) * scale - scale / 2;
+        rectMode(CENTER);
+        strokeWeight(0);
+        fill(clr, opacity);
+        rect(x, y, scale * 0.9, scale * 0.9, 4, 4, 4, 4);
 
         popMatrix();
         popStyle();
@@ -36,9 +51,9 @@ public class Block{
         return clr;
     }
 
-    public void setPos(int newRow, int newCol){
-        row = newRow;
-        col = newCol;
+    public void setPos(float newRow, float newCol){
+        row = (int) newRow;
+        col = (int) newCol;
     }
 
     public Block clone(){

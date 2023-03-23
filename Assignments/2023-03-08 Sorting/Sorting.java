@@ -6,12 +6,14 @@ import java.io.*;
 public class Sorting {
     public static void main(String[] args) {
         ArrayList<Integer> list = new ArrayList<Integer>();
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 100000; i++) {
             list.add((int) (Math.random() * 101));
         }
         System.out.println(list);
+        long start = System.currentTimeMillis();
         sort(list);
-        System.out.println(list);
+        long end = System.currentTimeMillis();
+        System.out.println(list + "\n" + (end - start));
     }
 
     public static void sort(ArrayList<Integer> list) {
