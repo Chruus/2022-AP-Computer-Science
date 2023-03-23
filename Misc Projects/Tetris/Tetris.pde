@@ -4,7 +4,7 @@ void setup() {
 
     heldPiece = -1;
     scale = 30;
-    level = 1;
+    level = 0;
     linesCleared = 0;
     score = 0;
     
@@ -25,7 +25,7 @@ void setup() {
 }
 
 UserInterface UI;
-ArrayList<Integer> bag1;
+ArrayList<Integer> bag1, bag2;
 int level, score, linesCleared;
 int scale, bagPos, heldPiece;
 Block[][] grid;
@@ -43,6 +43,16 @@ void draw() {
     currentPiece.displayGhost();
     currentPiece.display();
 }
+
+private void shuffleBag(ArrayList<Integer> bag){
+    ArrayList<Integer> newBag = new ArrayList<Integer>();
+    for(int i = bag.size() - 1; i >= 0; i--){
+        newBag.add(bag.get((int)random(0, i)));
+    }
+    bag = newBag;
+}
+
+private void resetBag(ArrayList<)
 
 private void gravity(){
     if(!currentPiece.canMove("down")){
