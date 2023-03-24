@@ -11,6 +11,15 @@ public class UserInterface{
         heldPiece.display();
     }
 
+    public void displayFuturePieces(ArrayList<Tetromino> pieces){
+        pieces.get(0).setPos(6, 12);
+        pieces.get(1).setPos(9, 12);
+        pieces.get(2).setPos(12, 12);
+        for(Tetromino piece : pieces){
+            piece.display();
+        }
+    }
+
     public void displayCurrentStats(int score, int linesCleared, int level){
         pushStyle();
         pushMatrix();
