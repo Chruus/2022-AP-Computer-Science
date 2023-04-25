@@ -1,140 +1,100 @@
 //Christopher Petty
 void setup() {
     size(420, 600);
-
-    addToGridDelay = 30;
-    scale = 30;
-    level = 1;
-    linesCleared = 0;
-    score = 0;
-
-    canSwapHeldPiece = true;
-    
-    grid = new Block[20][10];
-    bag = new Bag(scale, grid);
+    resetGame();
     UI = new UserInterface(scale);
-    currentPiece = bag.getNextPiece();
 }
 
 Bag bag;
 UserInterface UI;
-int level, score, linesCleared;
-int scale, addToGridDelay;
-Block[][] grid;
-boolean canSwapHeldPiece;
 Tetromino currentPiece, heldPiece;
+Grid grid;
+int level, score, linesCleared;
+int scale, timeToMoveDown;
+boolean canSwapHeldPiece, isAlive;
 
 void draw() {
-    gravity();
-    drawBackground();
-    displayGrid();
-    UI.displayCurrentStats(score, linesCleared, level);
-    UI.displayFuturePieces(bag.getFuturePieces());
-    if(heldPiece != null)
-        UI.displayHeldPiece(heldPiece);
+    if(isInMenu())
+        return;
+    
+    calculateGravity();
+    displayGame();
+    displayCurrentPiece();
+}
+
+private boolean isInMenu(){
+    if(UI.needToResetGame()){
+        resetGame();
+    }
+
+    if(UI.isInGameOver()){
+        UI.displayGameOver(score, linesCleared, level);
+        return true;
+    }
+    
+    if(UI.isInMenu()){
+        UI.displayMenu();
+        return true;
+    }
+
+    return false;
+}
+
+private void displayCurrentPiece(){
     currentPiece.displayGhost();
     currentPiece.display();
+}
+
+private void displayGame(){
+    UI.displayBackground();
+    UI.displayCurrentStats(score, linesCleared, level);
+    UI.displayFuturePieces(bag.getFuturePieces());
+    UI.displayHeldPiece(heldPiece);
+    grid.display();
 }
 
 private void swapHeldPiece(){
     if(!canSwapHeldPiece)
         return;
     
-    canSwapHeldPiece = false;
     Tetromino oldHeldPiece = heldPiece;
     heldPiece = currentPiece;
+    canSwapHeldPiece = false;
 
-    if(oldHeldPiece == null){
+    if(oldHeldPiece == null)
         currentPiece = bag.getNextPiece();
-        canSwapHeldPiece = false;
-        currentPiece.reset();
-        return;
-    }
-
-    currentPiece = oldHeldPiece;
+    else
+        currentPiece = oldHeldPiece;
+    
     currentPiece.reset();
 }
 
-private void drawBackground(){
-    pushMatrix();
-    pushStyle();
-
-    background(30, 30, 40);
-    strokeWeight(2);
-    stroke(15, 15, 20);
-    for(int x = 0; x <= scale * 10; x += scale){
-        line(x, 0, x, scale * 20);
-    }
-    for(int y = 0; y <= scale * 20; y += scale){
-        line(0, y, scale * 10, y);
-    }
-
-    popStyle();
-    popMatrix();
-}
-
-private void displayGrid(){
-    clearFullRows();
-    for(int r = 0; r < grid.length; r++){
-        for(int c = 0; c < grid[r].length; c++){
-            if(grid[r][c] != null)
-                grid[r][c].display();
-        }
-    }
-}
-
-private ArrayList<Integer> getFullRows(){
-    ArrayList<Integer> fullRows = new ArrayList<Integer>();
-    for(int r = 0; r < grid.length; r++){
-        boolean isFullRow = true;
-        for(int c = 0; c < grid[r].length; c++){
-            if(grid[r][c] == null){
-                isFullRow = false;
-                break;
-            }
-        }
-        if(isFullRow){
-            fullRows.add(r);
-        }
-    }
-    return fullRows;
-}
-
-private void clearFullRows(){
-    ArrayList<Integer> fullRows = getFullRows();
-    if(fullRows.size() == 0)
-        return;
+private void resetGame(){
+    canSwapHeldPiece = true;
+    isAlive = false;
     
-    for(int row : fullRows){
-        shiftGridDown(row);
-    }
+    scale = 30;
+    level = 1;
+    linesCleared = 0;
+    score = 0;
     
-    calculateScore(fullRows.size());
+    grid = new Grid();
+    bag = new Bag(scale, grid);
+    currentPiece = bag.getNextPiece();
+    heldPiece = null;
 }
 
-//For Testing
-private void printGrid(){
-    for(int r = 0; r < grid.length; r++){
-        for(int c = 0; c < grid[r].length; c++){
-            System.out.print('[');
-            if(grid[r][c] != null)
-                System.out.print(r);
-            System.out.print(']');
-        }
-        System.out.println();
-    }
-}
+private void addToGrid(){
+    currentPiece.addToGrid();
+    currentPiece.reset();
+    currentPiece = bag.getNextPiece();
+    currentPiece.reset();
+    grid.clearFullRows();
+    canSwapHeldPiece = true;
 
-private void shiftGridDown(int row){
-    for(int r = row; r > 0; r--){
-        for(int c = 0; c < grid[r].length; c++){
-            grid[r][c] = grid[r - 1][c];
-            if(grid[r][c] != null)
-                grid[r][c].setPos(r, c);
-        }
-    }
-    for(int c = 0; c < grid[0].length; c++){
-        grid[0][c] = null;
+    if(!currentPiece.canMove("down")){
+        isAlive = false;
+        UI.gameOver();
     }
 }
 
@@ -144,10 +104,10 @@ private void calculateScore(int numOfLinesCleared){
         score += 100 * level;
     } else if(numOfLinesCleared == 2){
         linesCleared += 2;
-        score += 200 * level;
+        score += 300 * level;
     } else if(numOfLinesCleared == 3){
         linesCleared += 3;
-        score += 400 * level;
+        score += 500 * level;
     } else if(numOfLinesCleared == 4){
         linesCleared += 4;
         score += 800 * level;
@@ -155,13 +115,24 @@ private void calculateScore(int numOfLinesCleared){
     level = linesCleared / 10 + 1;
 }
 
+void mousePressed(){
+    UI.mousePressed();
+}
+
+void mouseReleased(){
+    UI.mouseReleased();
+}
+
 void keyPressed() {
     if(key == ' '){
-        currentPiece.hardDrop();
-        addToGridDelay = 0;
+        score += currentPiece.hardDrop();
+        addToGrid();
     }
     if(key == 'c'){
         swapHeldPiece();
+    }
+    if(key == 'z'){
+        currentPiece.rotate(false);
     }
     if(key == CODED){
         if(keyCode == UP){
@@ -172,70 +143,62 @@ void keyPressed() {
         }
         if(keyCode == LEFT && currentPiece.canMove("left")){
             currentPiece.move("left");
-        }
+        }    
         if(keyCode == DOWN && currentPiece.canMove("down")){
             currentPiece.move("down");
+            score++;
         }
     }
 }
 
-private void gravity(){
-    if(addToGridDelay <= 0){
-        currentPiece.addToGrid();
-        currentPiece = bag.getNextPiece();
-        currentPiece.reset();
-        canSwapHeldPiece = true;
-        addToGridDelay = 30;
-        return;
-    }
+private void calculateGravity(){
     if(!currentPiece.canMove("down")){
-        addToGridDelay--;
+        if(grid.canAddTetromino(currentPiece))
+            addToGrid();
         return;
     }
 
-    if(level == 1 && frameCount % 48 == 0){
+    if(isTimeToMoveDown()){
         currentPiece.move("down");
     }
-    if(level == 2 && frameCount % 43 == 0){
-        currentPiece.move("down");
+}
+
+private boolean isTimeToMoveDown(){
+    if(timeToMoveDown > 0){
+        timeToMoveDown--;
+        return false;
     }
-    if(level == 3 && frameCount % 38 == 0){
-        currentPiece.move("down");
-    }
-    if(level == 4 && frameCount % 33 == 0){
-        currentPiece.move("down");
-    }
-    if(level == 5 && frameCount % 28 == 0){
-        currentPiece.move("down");
-    }
-    if(level == 6 && frameCount % 23 == 0){
-        currentPiece.move("down");
-    }
-    if(level == 7 && frameCount % 18 == 0){
-        currentPiece.move("down");
-    }
-    if(level == 8 && frameCount % 13 == 0){
-        currentPiece.move("down");
-    }
-    if(level == 9 && frameCount % 8 == 0){
-        currentPiece.move("down");
-    }
-    if(level == 10 && frameCount % 6 == 0){
-        currentPiece.move("down");
-    }
-    if(level >= 11 && level <= 13 && frameCount % 5 == 0){
-        currentPiece.move("down");
-    }
-    if(level >= 14 && level <= 16 && frameCount % 4 == 0){
-        currentPiece.move("down");
-    }
-    if(level >= 17 && level <= 19 && frameCount % 3 == 0){
-        currentPiece.move("down");
-    }
-    if(level >= 20 && level <= 29 && frameCount % 2 == 0){
-        currentPiece.move("down");
-    }
-    if(level >= 30 && frameCount % 1 == 0){
-        currentPiece.move("down");
-    }
+
+    if(level == 1)
+        timeToMoveDown = 48;
+    else if(level == 2)
+        timeToMoveDown = 43;
+    else if(level == 3)
+        timeToMoveDown = 38;
+    else if(level == 4)
+        timeToMoveDown = 33;
+    else if(level == 5)
+        timeToMoveDown = 28;
+    else if(level == 6)
+        timeToMoveDown = 23;
+    else if(level == 7)
+        timeToMoveDown = 18;
+    else if(level == 8)
+        timeToMoveDown = 13;
+    else if(level == 9)
+        timeToMoveDown = 8;
+    else if(level == 10)
+        timeToMoveDown = 6;
+    else if(level >= 11 && level <= 13)
+        timeToMoveDown = 5;
+    else if(level >= 14 && level <= 16)
+        timeToMoveDown = 4;
+    else if(level >= 17 && level <= 19)
+        timeToMoveDown = 3;
+    else if(level >= 20 && level <= 29)
+        timeToMoveDown = 2;
+    else if(level >= 30)
+        timeToMoveDown = 1;
+    
+    return true;
 }
